@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import process from "process";
 dotenv.config();
 
-export const connectTaskDB = async () => {
+const connectTaskDB = async () => {
     try {
         if (!process.env.MONGO_URI) {
             throw new Error('MONGO_URI is not defined in environment variables');
@@ -16,3 +16,5 @@ export const connectTaskDB = async () => {
         throw error;
     }
 }
+
+export default connectTaskDB;
