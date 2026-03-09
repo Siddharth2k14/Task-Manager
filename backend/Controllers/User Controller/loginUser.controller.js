@@ -1,5 +1,6 @@
-import userModel from "../../Models/User Schema/user.model";
+import userModel from "../../Models/User Schema/user.model.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export const loginUser = async (req, res) => {
   try {
@@ -17,9 +18,17 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid username or password" });
     }
 
+    const token = jwt.sign({
+        userId: user._id
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" }
+    );
+
     res.json({
       message: "Login successful",
-      userId: user._id
+      userId: user._id,
+      token: token
     });
 
   } catch (error) {

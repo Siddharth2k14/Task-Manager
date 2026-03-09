@@ -1,8 +1,8 @@
 import express from "express";
-import { createTask } from "../../Controllers/Task Controller/createTask.controller";
-import { getUserTasks } from "../../Controllers/Task Controller/getUserTasks.controller";
-import { updateTask } from "../../Controllers/Task Controller/updateTask.controller";
-import { deleteTask } from "../../Controllers/Task Controller/deleteTask.controller";
+import { createTask } from "../../Controllers/Task Controller/createTask.controller.js";
+import { getUserTasks } from "../../Controllers/Task Controller/getUserTasks.controller.js";
+import { updateTask } from "../../Controllers/Task Controller/updateTask.controller.js";
+import { deleteTask } from "../../Controllers/Task Controller/deleteTask.controller.js";
 
 
 const router = express.Router();
