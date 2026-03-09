@@ -1,5 +1,6 @@
 import userModel from "../../Models/User Schema/user.model.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
     try {
@@ -16,17 +17,25 @@ export const registerUser = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const token = jwt.sign({
+            name: name
+        },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
 
         const user = new userModel({
             name,
-            password: hashedPassword
+            password: hashedPassword,
+            token: token
         });
 
         await user.save();
 
         res.status(201).json({
             message: "User registered successfully",
-            userId: user._id
+            userId: user._id,
+            token: token
         });
     } catch (error) {
         console.error("Error registering user:", error);
