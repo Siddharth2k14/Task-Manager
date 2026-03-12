@@ -5,6 +5,12 @@ body {
   background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
 }
 
+.form-label {
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #2c5364;
+}
+
 /* Center container */
 .container {
   display: flex;
@@ -100,6 +106,12 @@ body {
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 20px;
+}
+
+.login {
+  color: #2c5364;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 /* Spinner Animation */
