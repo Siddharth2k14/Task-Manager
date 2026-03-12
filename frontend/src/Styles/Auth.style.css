@@ -114,6 +114,23 @@ body {
   font-weight: bold;
 }
 
+p a{
+  color: #2c5364;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+p a:hover {
+  text-decoration: underline;
+}
+
+p.form-text {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #555;
+}
+
 /* Spinner Animation */
 @keyframes spin {
   to {

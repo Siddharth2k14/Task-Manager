@@ -37,6 +37,10 @@ export const registerUser = async (req, res) => {
 
         await user.save();
 
+        if (user.save()) {
+            console.log(`Name: ${name}, Email: ${email}, Password: ${password}`)
+        }
+
         res.status(201).json({
             message: "User registered successfully",
             userId: user._id,

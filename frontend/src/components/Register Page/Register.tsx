@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { register } from "../../redux/authSlice";
+import { Link, useNavigate } from "react-router-dom";
 import "../../Styles/Auth.style.css";
 
 const Register = () => {
@@ -6,6 +9,9 @@ const Register = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [errors, setErrors] = useState<{
     name?: string;
@@ -80,16 +86,17 @@ const Register = () => {
 
     try {
       const res = await fetch(
-        "https://task-manager-iota-five-76.vercel.app/api/users/register",
+        "http://localhost:5000/api/users/register",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name: name,
-            email: email,
-            password: password,
+            name,
+            email,
+            password,
+            confirmPassword,
           }),
         }
       );
@@ -100,15 +107,13 @@ const Register = () => {
         throw new Error(data.message || "Registration failed");
       }
 
-      console.log("User registered:", data);
+      // Save user
+      dispatch(register(data));
+      localStorage.setItem("user", JSON.stringify(data));
 
       alert("Registration Successful!");
 
-      // Reset fields
-      setName("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
+      navigate("/tasks");
 
     } catch (error) {
       console.error("Registration error:", error);
@@ -174,7 +179,12 @@ const Register = () => {
             <p className="error">{errors.confirmPassword}</p>
           )}
 
-          <button type="submit">Register</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </button>
+          <p className="form-text">
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
 
         </form>
 

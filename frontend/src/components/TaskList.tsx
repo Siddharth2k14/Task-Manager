@@ -4,9 +4,10 @@ import { TaskItem } from "./TaskItem";
 interface TaskListProps {
     tasks: Task[];
     deleteTask: (index: number) => void;
+    completeTask: (index: number) => void;
 }
 
-export const TaskList = ({ tasks, deleteTask }: TaskListProps) => {
+export const TaskList = ({ tasks, deleteTask, completeTask }: TaskListProps) => {
   return (
     <div>
       {tasks.map((task, index) => (
@@ -14,6 +15,7 @@ export const TaskList = ({ tasks, deleteTask }: TaskListProps) => {
             key={index}
             tasks={task}
             deleteTask={() => deleteTask(index)}
+            completeTask={() => completeTask(index)}
         />
       ))}
     </div>

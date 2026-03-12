@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import "../../Styles/Auth.style.css";
+import { useDispatch } from "react-redux";
+import { login } from "../../redux/authSlice";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [name, setName] = useState<string>("");
@@ -7,6 +10,9 @@ const Login = () => {
   const [errors, setErrors] = useState<{ name?: string; password?: string }>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [timer, setTimer] = useState<number>(0);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Timer for loading screen
   useEffect(() => {
@@ -54,7 +60,7 @@ const Login = () => {
 
     try {
       const res = await fetch(
-        "https://task-manager-iota-five-76.vercel.app/api/users/login",
+        "http://localhost:5000/api/users/login",
         {
           method: "POST",
           headers: {
@@ -73,17 +79,16 @@ const Login = () => {
         throw new Error(data.message || "Login failed");
       }
 
-      console.log("User data:", data);
+      // Save user
+      dispatch(login(data));
+      localStorage.setItem("user", JSON.stringify(data));
 
-      // Save token if backend sends it
       if (data.token) {
         localStorage.setItem("token", data.token);
       }
 
       alert("Login Successful!");
-
-      setName("");
-      setPassword("");
+      navigate("/tasks");
 
     } catch (error) {
       console.error("Login error:", error);
@@ -92,7 +97,6 @@ const Login = () => {
 
     setLoading(false);
   };
-
   // Loading screen
   if (loading) {
     return (
@@ -130,8 +134,12 @@ const Login = () => {
           />
           {errors.password && <p className="error">{errors.password}</p>}
 
-          <button type="submit">Login</button>
-
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+          <p className="form-text">
+            Create an account? <Link to="/register">Register</Link>
+          </p>
         </form>
 
       </div>
