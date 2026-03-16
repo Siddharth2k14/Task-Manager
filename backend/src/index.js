@@ -8,7 +8,9 @@ import connectTaskDB from "../DB/Task Database/task.db.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors(
+  { origin: "https://task-manager-z6fd-psi.vercel.app/" }
+));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
