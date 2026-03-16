@@ -3,19 +3,19 @@ import { TaskItem } from "./TaskItem";
 
 interface TaskListProps {
     tasks: Task[];
-    deleteTask: (index: number) => void;
-    completeTask: (index: number) => void;
+    deleteTask: (taskId: string) => void;
+    completeTask: (taskId: string) => void;
 }
 
 export const TaskList = ({ tasks, deleteTask, completeTask }: TaskListProps) => {
   return (
     <div>
-      {tasks.map((task, index) => (
+      {tasks.map((task) => (
         <TaskItem
-            key={index}
+            key={task._id}
             tasks={task}
-            deleteTask={() => deleteTask(index)}
-            completeTask={() => completeTask(index)}
+            deleteTask={() => deleteTask(task._id || "")}
+            completeTask={() => completeTask(task._id || "")}
         />
       ))}
     </div>
