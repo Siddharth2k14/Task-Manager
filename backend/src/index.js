@@ -10,9 +10,11 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors(
-    'http://localhost:5173'
-));
+app.use(
+  cors({
+    origin: "http://localhost:5173"
+  })
+);
 connectUserDB();
 connectTaskDB();
 app.use("/api/users", userRoutes);
