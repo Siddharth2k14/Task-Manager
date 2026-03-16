@@ -27,7 +27,7 @@ const taskSlice = createSlice({
       }
     },
 
-    setTasks: (state, action: PayloadAction<Task[]>) => {
+    setTasks: (_state, action: PayloadAction<Task[]>) => {
       return action.payload;
     },
 
