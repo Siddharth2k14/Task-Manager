@@ -86,7 +86,7 @@ const Register = () => {
 
     try {
       const res = await fetch(
-        "https://task-manager-rwaa.onrender.com/api/users/register",
+        "http://localhost:5000/api/users/register",
         {
           method: "POST",
           headers: {

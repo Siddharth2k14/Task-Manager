@@ -22,71 +22,100 @@ export const TaskPage = () => {
     // Fetch user's tasks from backend on component mount
     useEffect(() => {
         if (user && user._id) {
+            console.log("Fetching tasks for user:", user._id);
             fetchUserTasks(user._id);
+        } else {
+            console.log("No user found, skipping task fetch");
         }
-    }, [user]);
+    }, [user, dispatch]);
 
     const fetchUserTasks = async (userId: string) => {
         try {
             const response = await fetch(`http://localhost:5000/api/tasks/user/${userId}`);
             if (response.ok) {
                 const fetchedTasks = await response.json();
+                console.log("Tasks fetched successfully:", fetchedTasks.length, "tasks");
                 dispatch(setTasks(fetchedTasks));
             } else {
                 console.error("Failed to fetch tasks. Status:", response.status);
+                dispatch(setTasks([])); // Set empty array if fetch fails
             }
         } catch (error) {
             console.error("Error fetching tasks - Is the backend server running on port 5000?", error);
+            dispatch(setTasks([])); // Set empty array on error
         }
     };
 
     const handleAddTask = async (task: Task) => {
         if (!user || !user._id) {
             console.error("User not logged in");
+            alert("Please log in to create tasks");
             return;
         }
 
         try {
+            const taskData = {
+                ...task,
+                userId: user._id
+            };
+            console.log("Creating task with data:", taskData);
+
             const response = await fetch("http://localhost:5000/api/tasks", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    ...task,
-                    userId: user._id
-                })
+                body: JSON.stringify(taskData)
             });
 
             if (response.ok) {
                 const newTask = await response.json();
+                console.log("Task created successfully:", newTask);
                 dispatch(addTask(newTask));
+                alert("Task created successfully!");
+            } else {
+                const error = await response.json();
+                console.error("Failed to create task. Status:", response.status, error);
+                alert("Failed to create task: " + (error.message || "Unknown error"));
             }
         } catch (error) {
             console.error("Error creating task:", error);
+            alert("Error creating task: " + (error instanceof Error ? error.message : "Unknown error"));
         }
     };
 
     const handleDeleteTask = async (taskId: string) => {
         try {
+            console.log("Deleting task:", taskId);
             const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
                 method: "DELETE"
             });
 
             if (response.ok) {
+                console.log("Task deleted successfully");
                 dispatch(deleteTask(taskId));
+                alert("Task deleted successfully!");
+            } else {
+                const error = await response.json();
+                console.error("Failed to delete task. Status:", response.status, error);
+                alert("Failed to delete task");
             }
         } catch (error) {
             console.error("Error deleting task:", error);
+            alert("Error deleting task: " + (error instanceof Error ? error.message : "Unknown error"));
         }
     };
 
     const handleCompleteTask = async (taskId: string) => {
         try {
             const currentTask = tasks.find(t => t._id === taskId);
-            if (!currentTask) return;
+            if (!currentTask) {
+                console.error("Task not found:", taskId);
+                return;
+            }
 
             const newStatus = currentTask.status === "completed" ? "pending" : "completed";
+            console.log("Updating task status to:", newStatus);
             
             const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
                 method: "PUT",
@@ -97,10 +126,16 @@ export const TaskPage = () => {
             });
 
             if (response.ok) {
+                console.log("Task updated successfully");
                 dispatch(toggleTask(taskId));
+            } else {
+                const error = await response.json();
+                console.error("Failed to update task. Status:", response.status, error);
+                alert("Failed to update task");
             }
         } catch (error) {
             console.error("Error updating task:", error);
+            alert("Error updating task: " + (error instanceof Error ? error.message : "Unknown error"));
         }
     };
 

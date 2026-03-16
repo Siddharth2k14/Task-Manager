@@ -21,19 +21,9 @@ const authSlice = createSlice({
       localStorage.setItem("user", JSON.stringify(action.payload));
     },
 
-    login: (state, action: PayloadAction<{email: string, password: string}>) => {
-      const savedUser = localStorage.getItem("user");
-
-      if (savedUser) {
-        const user = JSON.parse(savedUser);
-
-        if (
-          user.email === action.payload.email &&
-          user.password === action.payload.password
-        ) {
-          state.user = user;
-        }
-      }
+    login: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      localStorage.setItem("user", JSON.stringify(action.payload));
     },
 
     logout: (state) => {

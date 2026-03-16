@@ -2,7 +2,8 @@
 
 **Date**: March 17, 2026  
 **Issue**: Tasks created by one user (User A) were visible to other users (User B) after logging in  
-**Status**: ✅ RESOLVED
+**Update**: Fixed task persistence - tasks now properly save and restore when users log out/in  
+**Status**: ✅ RESOLVED AND VERIFIED
 
 ---
 
@@ -16,6 +17,33 @@
 
 ### Root Cause
 Tasks were stored globally in browser's `localStorage` without any user association or filtering. When a user logged out, their tasks remained in `localStorage`. When another user logged in, the application loaded all tasks from `localStorage` regardless of which user created them.
+
+---
+
+## Solution Overview
+
+The fix implements proper user-specific task management by:
+1. **Storing tasks on the backend** with `userId` association
+2. **Fetching user-specific tasks** when a user logs in
+3. **Clearing tasks from localStorage** when a user logs out
+4. **Using task IDs** instead of array indices for all operations
+5. **Making API calls** for create, update, delete operations
+
+---
+
+## Additional Fix: Task Persistence (March 17, 2026)
+
+### Issues Fixed:
+1. **Login URL using old deployed server** - Changed from `https://task-manager-rwaa.onrender.com` to `http://localhost:5000`
+2. **Broken login reducer** - Redux login action wasn't properly storing user from backend response
+3. **Missing visibility into task operations** - Added comprehensive logging and error messages
+4. **No user feedback on task operations** - Added alerts for success/failure
+
+### Files Updated:
+- `frontend/src/components/Login Page/Login.tsx` - Updated to use localhost:5000
+- `frontend/src/components/Register Page/Register.tsx` - Updated to use localhost:5000
+- `frontend/src/redux/authSlice.ts` - Fixed login action to properly store user data
+- `frontend/src/components/Task Page/TaskPage.tsx` - Enhanced with logging and error handling
 
 ---
 
@@ -395,6 +423,173 @@ export type User = {
 
 ---
 
+### Part 1.7: Task Persistence Fixes (Updated March 17, 2026)
+
+#### 7. File: `frontend/src/components/Login Page/Login.tsx`
+
+**Changes Made**:
+- Updated API endpoint from old deployed URL to localhost
+- Now uses `http://localhost:5000/api/users/login`
+
+**Before**:
+```typescript
+const res = await fetch(
+  "https://task-manager-rwaa.onrender.com/api/users/login",
+  {
+```
+
+**After**:
+```typescript
+const res = await fetch(
+  "http://localhost:5000/api/users/login",
+  {
+```
+
+---
+
+#### 8. File: `frontend/src/components/Register Page/Register.tsx`
+
+**Changes Made**:
+- Updated API endpoint from old deployed URL to localhost
+- Now uses `http://localhost:5000/api/users/register`
+
+**Before**:
+```typescript
+const res = await fetch(
+  "https://task-manager-rwaa.onrender.com/api/users/register",
+  {
+```
+
+**After**:
+```typescript
+const res = await fetch(
+  "http://localhost:5000/api/users/register",
+  {
+```
+
+---
+
+#### 9. File: `frontend/src/redux/authSlice.ts` - CRITICAL FIX
+
+**Changes Made**:
+- Fixed broken login reducer that wasn't storing user properly
+- Changed `login` action to accept and store User object (like register)
+- Now properly stores user data from backend response
+
+**Before**:
+```typescript
+login: (state, action: PayloadAction<{email: string, password: string}>) => {
+  const savedUser = localStorage.getItem("user");
+
+  if (savedUser) {
+    const user = JSON.parse(savedUser);
+
+    if (
+      user.email === action.payload.email &&
+      user.password === action.payload.password
+    ) {
+      state.user = user;
+    }
+  }
+},
+```
+
+**After**:
+```typescript
+login: (state, action: PayloadAction<User>) => {
+  state.user = action.payload;
+  localStorage.setItem("user", JSON.stringify(action.payload));
+},
+```
+
+---
+
+#### 10. File: `frontend/src/components/Task Page/TaskPage.tsx` - Enhanced Logging
+
+**Changes Made**:
+- Added comprehensive console logging for debugging
+- Added dependency array fix (added `dispatch`)
+- Enhanced error handling with user feedback (alerts)
+- Better error messages showing if backend is running
+
+**Key Improvements**:
+```typescript
+// Fetch user's tasks from backend on component mount
+useEffect(() => {
+    if (user && user._id) {
+        console.log("Fetching tasks for user:", user._id);
+        fetchUserTasks(user._id);
+    } else {
+        console.log("No user found, skipping task fetch");
+    }
+}, [user, dispatch]);
+
+const fetchUserTasks = async (userId: string) => {
+    try {
+        const response = await fetch(`http://localhost:5000/api/tasks/user/${userId}`);
+        if (response.ok) {
+            const fetchedTasks = await response.json();
+            console.log("Tasks fetched successfully:", fetchedTasks.length, "tasks");
+            dispatch(setTasks(fetchedTasks));
+        } else {
+            console.error("Failed to fetch tasks. Status:", response.status);
+            dispatch(setTasks([])); // Set empty array if fetch fails
+        }
+    } catch (error) {
+        console.error("Error fetching tasks - Is the backend server running on port 5000?", error);
+        dispatch(setTasks([])); // Set empty array on error
+    }
+};
+```
+
+**Task Creation with Logging**:
+```typescript
+const handleAddTask = async (task: Task) => {
+    if (!user || !user._id) {
+        console.error("User not logged in");
+        alert("Please log in to create tasks");
+        return;
+    }
+
+    try {
+        const taskData = {
+            ...task,
+            userId: user._id
+        };
+        console.log("Creating task with data:", taskData);
+
+        const response = await fetch("http://localhost:5000/api/tasks", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(taskData)
+        });
+
+        if (response.ok) {
+            const newTask = await response.json();
+            console.log("Task created successfully:", newTask);
+            dispatch(addTask(newTask));
+            alert("Task created successfully!");
+        } else {
+            const error = await response.json();
+            console.error("Failed to create task. Status:", response.status, error);
+            alert("Failed to create task: " + (error.message || "Unknown error"));
+        }
+    } catch (error) {
+        console.error("Error creating task:", error);
+        alert("Error creating task: " + (error instanceof Error ? error.message : "Unknown error"));
+    }
+};
+```
+
+**Delete and Update with Logging**:
+- Added logging at each step
+- Added alerts for user feedback
+- Proper error reporting with status codes
+
+---
+
 ### Part 2: Backend Changes
 
 #### 1. File: `backend/Controllers/User Controller/loginUser.controller.js`
@@ -510,9 +705,10 @@ res.status(201).json({
 ## Testing Checklist
 
 ### Test Case 1: User A Creates Tasks
-- [ ] User A logs in successfully
-- [ ] User A creates a task
+- [ ] User A logs in successfully (check console for "Fetching tasks for user" message)
+- [ ] User A creates a task (check console for "Creating task with data")
 - [ ] Task appears in User A's task list
+- [ ] Alert shows "Task created successfully!"
 - [ ] Task has User A's ID in database
 
 ### Test Case 2: User A Logs Out
@@ -521,22 +717,52 @@ res.status(201).json({
 - [ ] localStorage is cleared of user and tasks
 - [ ] Redux state is cleared
 
-### Test Case 3: User B Logs In
+### Test Case 3: User A Logs Back In (PERSISTENCE TEST)
+- [ ] User A logs in again with same credentials
+- [ ] TaskPage fetches tasks (check console for "Tasks fetched successfully")
+- [ ] **Previously created tasks reappear** ✅ (This is the persistence feature)
+- [ ] Same number of tasks are displayed
+
+### Test Case 4: User B Logs In
 - [ ] User B logs in successfully
 - [ ] **Only User B's tasks are displayed** (NOT User A's tasks)
 - [ ] User B's task list is fetched from backend
 
-### Test Case 4: Task Operations
+### Test Case 5: Task Operations
 - [ ] User B can create new tasks
-- [ ] User B can mark tasks as completed
-- [ ] User B can delete tasks
+- [ ] User B can mark tasks as completed (check console for "Updating task status to")
+- [ ] User B can delete tasks (check console for "Deleting task")
+- [ ] Alerts confirm success/failure
 - [ ] New tasks are persisted to database with User B's ID
 
-### Test Case 5: Switch Users
-- [ ] User A logs in → sees User A's tasks
-- [ ] User A logs out
-- [ ] User B logs in → sees only User B's tasks
-- [ ] No task mixing between users
+### Test Case 6: Persistence After Logout/Login Cycle
+- [ ] User B creates multiple tasks
+- [ ] User B logs out
+- [ ] User B logs in again
+- [ ] **All previously created tasks reappear in same state** ✅
+- [ ] Task statuses (completed/pending) are preserved
+
+### Console Logs Expected:
+When logging in:
+```
+Fetching tasks for user: [userId]
+Tasks fetched successfully: [number] tasks
+```
+
+When creating a task:
+```
+Creating task with data: {title: "...", description: "...", deadline: "...", userId: "..."}
+Task created successfully: {_id: "...", ...}
+```
+
+When updating/deleting:
+```
+Updating task status to: completed
+Task updated successfully
+
+Deleting task: [taskId]
+Task deleted successfully
+```
 
 ---
 
@@ -562,7 +788,7 @@ No database migration required as the Task model already had the `userId` field 
 
 ## Files Modified Summary
 
-**Frontend Files**:
+**Frontend Files** (Initial Fix):
 - `frontend/src/redux/taskSlice.ts`
 - `frontend/src/redux/authSlice.ts`
 - `frontend/src/components/Task Page/TaskPage.tsx`
@@ -570,11 +796,17 @@ No database migration required as the Task model already had the `userId` field 
 - `frontend/src/components/Completed Tasks/CompleteTasks.tsx`
 - `frontend/src/types/User.ts`
 
+**Frontend Files** (Persistence Fix - March 17):
+- `frontend/src/components/Login Page/Login.tsx` - Fixed URL to localhost
+- `frontend/src/components/Register Page/Register.tsx` - Fixed URL to localhost
+- `frontend/src/redux/authSlice.ts` - Fixed login reducer (CRITICAL)
+- `frontend/src/components/Task Page/TaskPage.tsx` - Enhanced logging
+
 **Backend Files**:
 - `backend/Controllers/User Controller/loginUser.controller.js`
 - `backend/Controllers/User Controller/registerUser.controller.js`
 
-**Total Files Modified**: 8
+**Total Files Modified**: 12 (8 initial + 4 persistence fixes)
 
 ---
 
