@@ -32,9 +32,11 @@ export const TaskPage = () => {
             if (response.ok) {
                 const fetchedTasks = await response.json();
                 dispatch(setTasks(fetchedTasks));
+            } else {
+                console.error("Failed to fetch tasks. Status:", response.status);
             }
         } catch (error) {
-            console.error("Error fetching tasks:", error);
+            console.error("Error fetching tasks - Is the backend server running on port 5000?", error);
         }
     };
 
