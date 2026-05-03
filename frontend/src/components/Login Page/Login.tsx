@@ -5,9 +5,9 @@ import { login } from "../../redux/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [errors, setErrors] = useState<{ name?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [timer, setTimer] = useState<number>(0);
 
@@ -36,10 +36,12 @@ const Login = () => {
 
   // Form validation
   const validateForm = () => {
-    const newErrors: { name?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string } = {};
 
-    if (!name) {
-      newErrors.name = "Username is required";
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email address is invalid";
     }
 
     if (!password) {
@@ -70,7 +72,7 @@ const Login = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name,
+            email,
             password,
           }),
         }
@@ -119,14 +121,14 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="login-form">
 
-          <label className="form-label">Username</label>
+          <label className="form-label">Email</label>
           <input
-            type="text"
-            placeholder="Enter username"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            type="email"
+            placeholder="Enter email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
-          {errors.name && <p className="error">{errors.name}</p>}
+          {errors.email && <p className="error">{errors.email}</p>}
 
           <label className="form-label">Password</label>
           <input
