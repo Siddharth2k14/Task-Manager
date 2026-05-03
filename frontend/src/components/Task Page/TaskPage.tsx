@@ -19,6 +19,8 @@ export const TaskPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const backend_url = import.meta.env.VITE_BACKEND_URL;
+
     // Fetch user's tasks from backend on component mount
     useEffect(() => {
         if (user && user._id) {
@@ -31,7 +33,7 @@ export const TaskPage = () => {
 
     const fetchUserTasks = async (userId: string) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/tasks/user/${userId}`);
+            const response = await fetch(`${backend_url}/api/tasks/user/${userId}`);
             if (response.ok) {
                 const fetchedTasks = await response.json();
                 console.log("Tasks fetched successfully:", fetchedTasks.length, "tasks");
@@ -60,7 +62,7 @@ export const TaskPage = () => {
             };
             console.log("Creating task with data:", taskData);
 
-            const response = await fetch("http://localhost:5000/api/tasks", {
+            const response = await fetch(`${backend_url}/api/tasks`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -87,7 +89,7 @@ export const TaskPage = () => {
     const handleDeleteTask = async (taskId: string) => {
         try {
             console.log("Deleting task:", taskId);
-            const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+            const response = await fetch(`${backend_url}/api/tasks/${taskId}`, {
                 method: "DELETE"
             });
 
@@ -117,7 +119,7 @@ export const TaskPage = () => {
             const newStatus = currentTask.status === "completed" ? "pending" : "completed";
             console.log("Updating task status to:", newStatus);
             
-            const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+            const response = await fetch(`${backend_url}/api/tasks/${taskId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"

@@ -13,6 +13,8 @@ const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const backend_url = import.meta.env.VITE_BACKEND_URL;
+
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
@@ -86,7 +88,7 @@ const Register = () => {
 
     try {
       const res = await fetch(
-        "http://localhost:5000/api/users/register",
+        `${backend_url}/api/users/register`,
         {
           method: "POST",
           headers: {

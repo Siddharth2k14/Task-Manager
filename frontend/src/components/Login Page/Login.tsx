@@ -14,6 +14,9 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const backend_url = import.meta.env.VITE_BACKEND_URL;
+  console.log(backend_url);
+
   // Timer for loading screen
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -60,7 +63,7 @@ const Login = () => {
 
     try {
       const res = await fetch(
-        "http://localhost:5000/api/users/login",
+        `${backend_url}/api/users/login`,
         {
           method: "POST",
           headers: {
