@@ -63,6 +63,7 @@ const Login = () => {
     setLoading(true);
 
     try {
+      console.log("Attempting login with:", { email, password });
       const res = await fetch(
         `${backend_url}/api/users/login`,
         {
@@ -96,7 +97,7 @@ const Login = () => {
 
     } catch (error) {
       console.error("Login error:", error);
-      alert("Invalid username or password");
+      alert("Invalid email or password");
     }
 
     setLoading(false);
