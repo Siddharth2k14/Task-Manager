@@ -8,9 +8,24 @@ import connectTaskDB from "../DB/Task Database/task.db.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors(
-  { origin: "https://task-manager-z6fd-psi.vercel.app" }
-));
+const allowedOrigins = [
+  "https://task-manager-z6fd-psi.vercel.app",
+  "http://localhost:5173",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS policy does not allow access from this origin."));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
