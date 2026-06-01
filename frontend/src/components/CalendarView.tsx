@@ -8,7 +8,7 @@ interface CalendarViewProps {
 
 export const CalendarView = ({ tasks }: CalendarViewProps) => {
     const events = tasks.map((task, index) => ({
-        id: index.toString(),
+        // id: index.toString(),
         title: task.title,
         date: task.deadline,
     }));

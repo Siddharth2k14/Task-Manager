@@ -4,7 +4,7 @@ const Home = () => {
     return (
         <div className="home-container">
             <div className="home-card">
-                <h1 className="home-title">Welcome to Task Manager</h1>
+                <h1 className="home-title">Welcome to Task Master</h1>
 
                 <div className="home-button-group">
                     <button
