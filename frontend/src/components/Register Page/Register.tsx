@@ -13,7 +13,7 @@ const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const backend_url = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  const backend_url = import.meta.env.VITE_BACKEND_URL;
 
   const [errors, setErrors] = useState<{
     name?: string;
