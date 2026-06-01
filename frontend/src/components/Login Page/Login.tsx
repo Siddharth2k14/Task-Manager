@@ -63,7 +63,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      console.log("Attempting login with:", { email, password });
+      // console.log("Attempting login with:", { email, password });
       const res = await fetch(
         `${backend_url}/api/users/login`,
         {
